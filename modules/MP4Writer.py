@@ -1,10 +1,11 @@
 import cv2
 import streamlit as st
 import time
+import datetime
 
 class MP4Writer:
 
-    def __init__(self, width, height, fps=20, chunk_duration=30):
+    def __init__(self, width, height, fps=20, chunk_duration=30, base_name=''):
         """
         width, height: Frame size
         fps: Frames per second (approx)
@@ -15,6 +16,7 @@ class MP4Writer:
         self.height = height
         self.fps = fps
         self.chunk_duration = chunk_duration
+        self.base_name = base_name
 
         self.fourcc = cv2.VideoWriter_fourcc(*'mp4v')
         self.video_out = None
@@ -24,8 +26,10 @@ class MP4Writer:
     def _start_new_file(self):
         """Open a new MP4 file writer."""
         # Make a filename based on the current timestamp (or any naming scheme you want)
-        timestamp = int(time.time())
-        filename = f"{timestamp}.mp4"
+        timestamp_temp = int(time.time())
+        dt = datetime.datetime.utcfromtimestamp(timestamp_temp)
+        timestamp = dt.strftime("%Y-%m-%dT%H:%M:%S")
+        filename = f"{self.base_name}{timestamp}.mp4"
         st.write(f"Starting new recording file: {filename}")
         self.video_out = cv2.VideoWriter(filename, self.fourcc, self.fps, (self.width, self.height))
         self.start_time = time.time()

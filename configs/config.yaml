@@ -1,0 +1,20 @@
+rtc_configuration:
+  iceServers:
+    - urls:
+        - "stun:stun.l.google.com:19302"
+    - urls:
+        - "turn:34.31.136.194:3478?transport=udp"
+      username: "demo"
+      credential: "pass123"
+
+video:
+  # アプリ開始時の仮のデフォルト画面サイズ
+  default_width: 640
+  default_height: 480
+  # 動画関連パラメータ
+  fps: 5
+  chunk_duration: 30
+
+filters:
+  brightness: 1.4      # 明るさ (1.0 で等倍、>1.0 で明るく)
+  saturation: 1.4      # 彩度 (1.0 で等倍、>1.0 で鮮やか)
