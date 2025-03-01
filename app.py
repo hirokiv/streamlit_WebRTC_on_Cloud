@@ -10,7 +10,7 @@ import cv2
 import yaml
 
 from modules.MP4Writer import MP4Writer
-from modules.apply_filters import apply_filters
+from modules.apply_filters import apply_filters, FaceEmotionAgeProcessor
 
 lock = threading.Lock()
 
@@ -21,7 +21,7 @@ img_container = {
 }
 
 
-def video_frame_callback(frame):
+def video_frame_callback(frame,filters_config):
     """
     Returns the 'filtered' frame for display,
     but also stores both original & filtered into the global container.
@@ -30,7 +30,11 @@ def video_frame_callback(frame):
     unfiltered_img = frame.to_ndarray(format="bgr24")
 
     # Apply filters
-    filtered_img = apply_filters(unfiltered_img)
+    filtered_img = apply_filters(
+            unfiltered_img,
+            brightness=filters_config["brightness"],
+            saturation=filters_config["saturation"],
+            )
 
     # Save both to container
     with lock:
@@ -40,14 +44,17 @@ def video_frame_callback(frame):
     # Return the filtered frame for display
     return av.VideoFrame.from_ndarray(filtered_img, format="bgr24")
 
-def run_streamlit_app(rtc_configuration):
+def run_streamlit_app(rtc_configuration, filters_config):
     """
     Start the WebRTC streaming and use 'video_frame_callback' to process frames.
     """
     ctx = webrtc_streamer(
-        key="example",
-        video_frame_callback=video_frame_callback,
-        rtc_configuration=rtc_configuration
+        key="webrtc",
+        rtc_configuration=rtc_configuration,
+        video_frame_callback=lambda frame: video_frame_callback(frame, filters_config),
+        # video_processor_factory=FaceEmotionAgeProcessor,
+        media_stream_constraints={"video": True, "audio": False},
+        async_processing=True,
     )
     return ctx
 
@@ -65,10 +72,12 @@ if __name__ == "__main__":
     fps = video_config["fps"]
     chunk_duration = video_config["chunk_duration"]
 
+    # フィルタ設定
+    filters_config = config["filters"]
     # ---------------------
     # 2) Start WebRTC
     # ---------------------
-    ctx = run_streamlit_app(rtc_configuration)
+    ctx = run_streamlit_app(rtc_configuration, filters_config)
 
     # We'll keep track of two MP4Writer objects
     writer_unfiltered = None

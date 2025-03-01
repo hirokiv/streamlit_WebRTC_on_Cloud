@@ -16,5 +16,5 @@ video:
   chunk_duration: 30
 
 filters:
-  brightness: 1.4      # 明るさ (1.0 で等倍、>1.0 で明るく)
-  saturation: 1.4      # 彩度 (1.0 で等倍、>1.0 で鮮やか)
+  brightness: 1.2      # 明るさ (1.0 で等倍、>1.0 で明るく)
+  saturation: 1.1      # 彩度 (1.0 で等倍、>1.0 で鮮やか)

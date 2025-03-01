@@ -1,8 +1,11 @@
 import cv2
 import numpy as np
+import av
+from streamlit_webrtc import webrtc_streamer, VideoProcessorBase, WebRtcMode
+from .face_recognition import apply_face_recog
 
 # グローバルなどに用意: Haar カスケードの読み込み
-face_cascade = cv2.CascadeClassifier("xml/haarcascade_frontalface_default.xml")
+# face_cascade = cv2.CascadeClassifier("models/haarcascade_frontalface_default.xml")
 
 def apply_filters(img, brightness, saturation, arg3=None):
     """
@@ -13,7 +16,7 @@ def apply_filters(img, brightness, saturation, arg3=None):
     """
     # 1) 顔検出
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    faces = face_cascade.detectMultiScale(gray, 1.2, 5)
+    # faces = face_cascade.detectMultiScale(gray, 1.2, 5)
 
     # 3) 明るさ調整 (簡易的にアルファだけ変える)
     # alpha=brightness, beta=0
@@ -27,5 +30,19 @@ def apply_filters(img, brightness, saturation, arg3=None):
     hsv = hsv.astype(np.uint8)
     img = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
 
+    # apply face recognition here
+    result_img = apply_face_recog(img)
+
     return img
+
+
+class FaceEmotionAgeProcessor(VideoProcessorBase):
+    def recv(self, frame: av.VideoFrame) -> av.VideoFrame:
+        # Convert the incoming video frame (av.VideoFrame) to a numpy array (OpenCV image)
+        img = frame.to_ndarray(format="bgr24")
+        # Apply the filter (face recognition + emotion + age)
+        # result_img = apply_filter(img)
+        result_img = apply_face_recog(img)
+        # Convert back to av.VideoFrame for streaming
+        return av.VideoFrame.from_ndarray(result_img, format="bgr24")
 

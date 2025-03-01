@@ -1,0 +1,3 @@
+images/known_faces/**
+!images/known_faces/.gitkeep
+**/__pycache__/**

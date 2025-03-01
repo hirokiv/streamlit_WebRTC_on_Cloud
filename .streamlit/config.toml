@@ -1,4 +1,4 @@
 [server]
 port = 8505
-certfile = "/etc/ssl/private/selfsigned.crt"
-keyfile = "/etc/ssl/private/selfsigned.key"
+# certfile = "/etc/ssl/private/selfsigned.crt"
+# keyfile = "/etc/ssl/private/selfsigned.key"

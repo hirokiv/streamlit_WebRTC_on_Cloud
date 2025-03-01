@@ -3,6 +3,18 @@ import streamlit as st
 import time
 import datetime
 
+import pytz  
+
+def timestamp_to_iso_jst(timestamp):
+    # Convert timestamp to datetime (UTC)
+    dt_utc = datetime.datetime.utcfromtimestamp(timestamp).replace(tzinfo=pytz.utc)
+
+    # Convert to JST (UTC+9)
+    dt_jst = dt_utc.astimezone(pytz.timezone("Asia/Tokyo"))
+
+    # Format as ISO 8601
+    return dt_jst.isoformat()
+
 class MP4Writer:
 
     def __init__(self, width, height, fps=20, chunk_duration=30, base_name=''):
@@ -26,10 +38,10 @@ class MP4Writer:
     def _start_new_file(self):
         """Open a new MP4 file writer."""
         # Make a filename based on the current timestamp (or any naming scheme you want)
-        timestamp_temp = int(time.time())
-        dt = datetime.datetime.utcfromtimestamp(timestamp_temp)
-        timestamp = dt.strftime("%Y-%m-%dT%H:%M:%S")
-        filename = f"{self.base_name}{timestamp}.mp4"
+        timestamp = int(time.time())
+        iso_jst = timestamp_to_iso_jst(timestamp)
+        #dt = datetime.datetime.utcfromtimestamp(timestamp_temp)
+        filename = f"{self.base_name}{iso_jst}.mp4"
         st.write(f"Starting new recording file: {filename}")
         self.video_out = cv2.VideoWriter(filename, self.fourcc, self.fps, (self.width, self.height))
         self.start_time = time.time()
